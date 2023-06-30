@@ -1,12 +1,22 @@
 import React from 'react';
-import {MantineProvider, Text} from "@mantine/core";
+import { MantineProvider } from "@mantine/core";
+import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import Signin from "./pages/Signin";
+import Index from "./pages/Index";
+import theme from "./theme";
 
 function App() {
   return (
-    <MantineProvider withGlobalStyles withNormalizeCSS>
-      <Text>ICAO-Studio-Web-App</Text>
+    <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
+      <RouterProvider router={router} />
     </MantineProvider>
   );
 }
+
+/* Adding browser based routing */
+const router = createBrowserRouter([
+    {path: '/', element: <Index />},
+    {path: '/signin', element: <Signin />}
+]);
 
 export default App;
