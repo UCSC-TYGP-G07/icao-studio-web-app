@@ -8,7 +8,6 @@ function Signin(){
     const navigate = useNavigate();
     const { width, height } = useViewportSize();
 
-
     return (
         <>
             <Navbar />
