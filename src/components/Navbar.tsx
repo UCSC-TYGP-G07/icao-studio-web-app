@@ -1,8 +1,54 @@
 import { Container, Image, Flex, Menu, Button, Avatar } from "@mantine/core";
-import {FaAngleDown} from "react-icons/fa6";
+import {FaAngleDown, FaCircleUser} from "react-icons/fa6";
 import logo from "../assets/logo-no-background.png";
+import Cookies from "universal-cookie";
+import React, {createContext, useContext, useEffect} from "react";
+import {AuthContext, JwtToken} from "../services/AuthContextProvider";
+import jwtDecode from "jwt-decode";
+import {useLocation, useNavigate} from "react-router-dom";
 
 function Navbar(){
+    /* Getting currently signed in user */
+    const cookie = new Cookies();
+    const accessToken = cookie.get('Access-Token');
+
+    const navigator = useNavigate();
+    const location = useLocation();
+
+    const { user, setUser } = useContext(AuthContext);
+
+    useEffect(() => {
+        if(user == null){
+            /* Fetching the user from JWT */
+            if (accessToken == undefined || accessToken == null) {
+                /* Redirect to the signin page */
+
+                if(location.pathname !== '/signin' && location.pathname !== '/') {
+                    navigator('/signin');
+                }
+            } else {
+                /* Decode the access token and store in react context */
+                const token = jwtDecode<JwtToken>(accessToken);
+                const email = token.email.toString();
+
+                if (email == null || email == undefined) {
+                    /* Redirect to the signin page */
+                    if(location.pathname !== '/signin' && location.pathname !== '/') {
+                        navigator('/signin');
+                    }
+                }
+
+                setUser({email: email, roles: []});
+            }
+        }
+    }, []);
+
+    /* Sign out from the current user */
+    function signoutHandler(){
+        cookie.remove('Access-Token');
+        setUser(null);
+    }
+
     return (
       <Flex h={64} align='center' justify='space-between' bg='primary.0'>
         {/* Logo container */}
@@ -27,19 +73,21 @@ function Navbar(){
                </Menu>
            </Container>
             {/* Sign in button */}
+            { user &&
             <Container>
                 <Menu>
                     <Menu.Target>
-                       <Avatar radius='xl'>MI</Avatar>
+                       <Avatar radius='xl'>{user.email.slice(0,2).toUpperCase()}</Avatar>
                     </Menu.Target>
                     <Menu.Dropdown>
-                        <Menu.Label>Mohamed Izzath</Menu.Label>
+                        <Menu.Label>{user.email}</Menu.Label>
                         <Menu.Item>User account page</Menu.Item>
                         <Menu.Item>Settings</Menu.Item>
-                        <Menu.Item>Sign out</Menu.Item>
+                        <Menu.Item onClick={signoutHandler}>Sign out</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
-            </Container>
+            </Container>}
+            { !user && <Button variant='filled' color='primary' mx={6} onClick={() => navigator('/signin')}>Sign in&nbsp;<FaCircleUser/></Button>}
         </Flex>
       </Flex>
     );

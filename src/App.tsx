@@ -6,11 +6,14 @@ import Index from "./pages/Index";
 import ReferenceIndex from "./pages/Reference/Index";
 import theme from "./theme";
 import ReferenceId from "./pages/Reference/ReferenceId";
+import AuthProvider from "./services/AuthContextProvider";
 
 function App() {
   return (
     <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-      <RouterProvider router={router} />
+        <AuthProvider>
+            <RouterProvider router={router} />
+        </AuthProvider>
     </MantineProvider>
   );
 }

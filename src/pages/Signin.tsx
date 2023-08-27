@@ -1,10 +1,13 @@
-import {TextInput, Title, Text, Button, Center, Flex, Overlay, Modal, Notification} from "@mantine/core";
+import {TextInput, Title, Text, Button, Center, Flex, Overlay, Modal, Notification, Container} from "@mantine/core";
 import Navbar from "../components/Navbar";
-import {Link, redirect, useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import Bottombar from "../components/Bottombar";
 import {useDisclosure, useViewportSize} from "@mantine/hooks";
 import React, {useEffect, useState} from "react";
-import { IconCheck } from '@tabler/icons-react';
+import axios from "axios";
+import {Sha256} from "@aws-crypto/sha256-js";
+import {Buffer} from 'buffer';
+import Cookies from "universal-cookie";
 
 function Signin(){
     const navigate = useNavigate();
@@ -20,7 +23,9 @@ function Signin(){
 
     const [buttonEnabled, setButtonEnabled] = useState(true);
 
-
+    /* Managing modal elements */
+    const [modalColor, setModalColor] = useState('green.9');
+    const [modalText, setModalText] = useState('')
 
     /* Checking the validity of email and password */
     useEffect(() => {
@@ -38,36 +43,82 @@ function Signin(){
     }, [email, password]);
 
     /* Send the request and obtain jwt token */
-    function validateSignIn(){
+    async function validateSignIn(){
         /* Display the overlay */
         setOverlayVisible(true);
+        setOverlayClosable(false);
         open();
+
+        setModalColor('green.9');
+        setModalColor('Please wait as we checking your account. Almost there..');
+
+        /* Creating hash for the password using SHA-256 */
+        let hash = new Sha256();
+        hash.update(password)
+        const hashedPassword = await hash.digest();
+        const hashedPasswordStr = Buffer.from(hashedPassword).toString('hex');
+
+        /* Axios call to the backend for authentication */
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/login`, {
+            email: email,
+            password: hashedPasswordStr
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then((response) => {
+            /* User got authenticated */
+            setOverlayClosable(true);
+            setModalText('Success! You\'re successfully signed in');
+            setModalColor('green.9');
+
+            /* Saving the access token in cookies */
+            const cookie = new Cookies();
+            cookie.set('Access-Token', response.data.access_token);
+
+            /* Hiding the success modal */
+            setTimeout(() => {
+                closeModal();
+                setModalColor('green.9');
+                setModalColor('');
+
+                /* Redirect to the home page */
+                navigate('/');
+            }, 3000);
+        })
+            .catch((err) => {
+                console.log(err);
+                console.log('User not authenticated!');
+            })
     }
 
     /* Closing the overlay */
     function closeModal(){
-
+        close();
     }
 
     return (
         <>
             { overlayVisible &&
-                 <Modal opened={opened} onClose={close} withCloseButton={overlayClosable} centered>
-                     <IconCheck size="1.1rem" />
+                 <Modal opened={opened} onClose={close} withCloseButton={false} closeOnClickOutside={overlayClosable} centered>
+                     <Flex direction='row' align='center' justify='center'>
+                     <Title weight='normal' ml={4} order={4} align='center' color={modalColor}>{modalText}</Title>
+                     </Flex>
                  </Modal>
-                 }
+            }
             <Navbar />
             {/* Main container which contains Sign in page */}
             <Flex direction='column' align='center' justify='center' w={width * 0.4} h={height - 96} py='auto' mx='auto' >
                 <Title order={1} align='center' my={16}>Sign in to your studio account</Title>
-                <TextInput w={320} my={12} mx='auto' label='Email address' type='email' placeholder="Enter you'r email address" value={email} onChange={(event) => setEmail(event.target.value)} />
-                <TextInput w={320} my={12} mx='auto' label='Password' type='password' placeholder="Enter you'r password" value={password} onChange={(event) => setPassword(event.target.value)}/>
+                <TextInput w={320} my={12} mx='auto' id='input-email' label='Email address' type='email' placeholder="Enter you'r email address" value={email} onChange={(event) => setEmail(event.target.value)} />
+                <TextInput w={320} my={12} mx='auto' id='input-password' label='Password' type='password' placeholder="Enter you'r password" value={password} onChange={(event) => setPassword(event.target.value)}/>
                 <Text size={14} ml='auto' align='right' w='full'>
                     <Link to='/'>Forgot Password?</Link>
                 </Text>
                 <Text size={14} align='center'>No account?<Link to='/'>Register now</Link></Text>
                 <Center my={12}>
-                    <Button variant='filled' color='primary' disabled={!buttonEnabled} onClick={() => navigate('/reference')}>Sign in</Button>
+                    <Button variant='filled' id='button-signin' color='primary' disabled={!buttonEnabled} onClick={validateSignIn}>Sign in</Button>
                 </Center>
             </Flex>
             <Bottombar />
