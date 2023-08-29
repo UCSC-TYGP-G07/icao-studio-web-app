@@ -2,7 +2,7 @@ import {Avatar, Center, Container, Flex, ScrollArea, Stepper, Text, Timeline, Ti
 import {useState} from "react";
 
 function ValidityProgress({ progress }: ProgressProps){
-    const [active, setActive] = useState(3);
+    const [active, setActive] = useState(1);
 
     return (
         <ScrollArea mx='auto' my={28} w='full'>

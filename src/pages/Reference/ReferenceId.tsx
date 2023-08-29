@@ -19,7 +19,7 @@ function ReferenceId(){
             <Navbar />
             <Flex direction='row' align='stretch' justify='stretch' w={width} h={height - 96}>
                 <Flex direction='column' pl={128} justify='center' my={24} w={width / 2}>
-                    <Title order={1} my={8}>Theodore Gunasekara</Title>
+                    <Title order={1} my={8}>Mohamed Izzath</Title>
                     <Center>
                         <Container p={4} mx={4} bg='grey.0' style={{ borderRadius: 4}}>NIC Number - 843521817V</Container>
                         <Container p={4} mx={4} bg='grey.0' style={{ borderRadius: 4}}>Telephone Number - 076 332 1723</Container>
@@ -31,7 +31,7 @@ function ReferenceId(){
                         <Button color='primary' variant='filled' mx={8} leftIcon={<FaCheck />}>Submit</Button>
                     </Center>
                 </Flex>
-                <Center>
+                <Center ml={24}>
                     <ImageUpload width={width * 0.3} height={height * 0.6} />
                 </Center>
             </Flex>
