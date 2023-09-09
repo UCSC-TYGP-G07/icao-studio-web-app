@@ -7,12 +7,15 @@ import ReferenceIndex from "./pages/Reference/Index";
 import theme from "./theme";
 import ReferenceId from "./pages/Reference/ReferenceId";
 import AuthProvider from "./services/AuthContextProvider";
+import { ModalsProvider } from "@mantine/modals";
 
 function App() {
   return (
     <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
         <AuthProvider>
-            <RouterProvider router={router} />
+            <ModalsProvider>
+                <RouterProvider router={router} />
+            </ModalsProvider>
         </AuthProvider>
     </MantineProvider>
   );

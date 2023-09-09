@@ -1,4 +1,4 @@
-import {TextInput, Title, Text, Button, Center, Flex, Overlay, Modal, Notification, Container} from "@mantine/core";
+import {TextInput, Title, Text, Button, Center, Flex, Image, Modal, Notification, Container} from "@mantine/core";
 import Navbar from "../components/Navbar";
 import {Link, useNavigate} from "react-router-dom";
 import Bottombar from "../components/Bottombar";
@@ -8,6 +8,8 @@ import axios from "axios";
 import {Sha256} from "@aws-crypto/sha256-js";
 import {Buffer} from 'buffer';
 import Cookies from "universal-cookie";
+import IconCancel from "../assets/message-icons/icons8-cancel.svg";
+import IconCheck from "../assets/message-icons/icons8-checkmark-150.svg";
 
 function Signin(){
     const navigate = useNavigate();
@@ -25,7 +27,8 @@ function Signin(){
 
     /* Managing modal elements */
     const [modalColor, setModalColor] = useState('green.9');
-    const [modalText, setModalText] = useState('')
+    const [modalText, setModalText] = useState('');
+    const [modalIcon, setModalIcon] = useState(IconCancel);
 
     /* Checking the validity of email and password */
     useEffect(() => {
@@ -70,7 +73,8 @@ function Signin(){
             .then((response) => {
             /* User got authenticated */
             setOverlayClosable(true);
-            setModalText('Success! You\'re successfully signed in');
+            setModalIcon(IconCheck);
+            setModalText('You\'re successfully signed in!');
             setModalColor('green.9');
 
             /* Saving the access token in cookies */
@@ -81,16 +85,27 @@ function Signin(){
             setTimeout(() => {
                 closeModal();
                 setModalColor('green.9');
-                setModalColor('');
+                setModalText('');
 
                 /* Redirect to the home page */
                 navigate('/');
             }, 3000);
         })
             .catch((err) => {
-                console.log(err);
-                console.log('User not authenticated!');
-            })
+                const statusCode = err.response ? err.response.status: 500;
+
+                if(statusCode === 404){
+                    setModalText('The entered account doesn\'t exists!');
+                }else if(statusCode === 401){
+                    setModalText('The entered email and password don\'t match');
+                } else {
+                    setModalText('Something went wrong! Please try later');
+                }
+
+                setOverlayClosable(true);
+                setModalIcon(IconCancel);
+                setModalColor('red.9');
+            });
     }
 
     /* Closing the overlay */
@@ -103,7 +118,8 @@ function Signin(){
             { overlayVisible &&
                  <Modal opened={opened} onClose={close} withCloseButton={false} closeOnClickOutside={overlayClosable} centered>
                      <Flex direction='row' align='center' justify='center'>
-                     <Title weight='normal' ml={4} order={4} align='center' color={modalColor}>{modalText}</Title>
+                         <Image src={modalIcon} maw={32} mx={12}/>
+                        <Title weight='normal' ml={4} order={4} align='center' color={modalColor}>{modalText}</Title>
                      </Flex>
                  </Modal>
             }

@@ -50,7 +50,7 @@ function Index(){
                 </Center>
                 <Flex align='center' justify='center' direction='column' h={height * 0.3} w={width * 0.4} my={12} bg='primary.0' style={{ borderRadius: 10}}>
                     <TextInput size='lg' placeholder='1271 2341 8769' value={referenceNum} onChange={(e) => handleReferenceNumChange(e.target.value)} error={buttonDisable} />
-                    <Button color='primary' mt={12} rightIcon={<FaArrowRight />} disabled={buttonDisable} onClick={() => {navigate(`/reference/${referenceNum}`)}}>Choose Image</Button>
+                    <Button color='primary' mt={12} rightIcon={<FaArrowRight />} disabled={buttonDisable} onClick={() => {}}>Choose Image</Button>
                 </Flex>
             </Flex>
             <Bottombar />
