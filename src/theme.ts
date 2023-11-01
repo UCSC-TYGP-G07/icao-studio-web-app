@@ -8,8 +8,8 @@ const theme: MantineThemeOverride = {
         'success': ['#E9FBF3', '#C3F4DD', '#9CEDC7', '#75E6B1', '#4FDE9C', '#28D786', '#20AC6B', '#188150', '#105636', '#082B1B'],
         'error': ['#FCE8E8', '#F8BFBF', '#F39696', '#EE6D6D', '#E94444', '#E41B1B', '#B71515', '#891010', '#5B0B0B', '#2E0505']
     },
-    fontFamily: 'DM Sans, sans-serif',
-    headings: { fontFamily: 'Poppins, sans-serif'},
+    fontFamily: 'Poppins, sans-serif',
+    headings: { fontFamily: 'Inter, sans-serif'},
     breakpoints: { xs: '30em', sm: '48em', md: '64em', lg: '74em', xl: '90em' },
 }
 
