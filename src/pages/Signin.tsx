@@ -123,15 +123,12 @@ function Signin(){
                      </Flex>
                  </Modal>
             }
-            <Navbar />
+            <Navbar protectedRoute={false} />
             {/* Main container which contains Sign in page */}
             <Flex direction='column' align='center' justify='center' w={width * 0.4} h={height - 96} py='auto' mx='auto' >
                 <Title order={1} align='center' my={16}>Sign in to your studio account</Title>
                 <TextInput w={320} my={12} mx='auto' id='input-email' label='Email address' type='email' placeholder="Enter you'r email address" value={email} onChange={(event) => setEmail(event.target.value)} />
                 <TextInput w={320} my={12} mx='auto' id='input-password' label='Password' type='password' placeholder="Enter you'r password" value={password} onChange={(event) => setPassword(event.target.value)}/>
-                <Text size={14} ml='auto' align='right' w='full'>
-                    <Link to='/'>Forgot Password?</Link>
-                </Text>
                 <Text size={14} align='center'>No account?<Link to='/'>Register now</Link></Text>
                 <Center my={12}>
                     <Button variant='filled' id='button-signin' color='primary' disabled={!buttonEnabled} onClick={validateSignIn}>Sign in</Button>

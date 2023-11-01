@@ -22,6 +22,8 @@ import {AuthContext} from "../services/AuthContextProvider";
 import QrScanner from "qr-scanner";
 import IconCancel from "../assets/message-icons/icons8-cancel.svg";
 import {modals} from "@mantine/modals";
+import axios from "axios";
+import Cookies from "universal-cookie";
 
 function Index(){
     /* Getting current viewport sizes */
@@ -94,9 +96,10 @@ function Index(){
 
     const handleRefChange = (refValue: string) => {
         /* Checking the current string value */
-        const regex = /^[0-9]{12}$/;
+        const oldRegex = /^[0-9]{12}$/;
+        const firstRegex = /^[0-9]{9}(V|v)$/;
 
-        if(!regex.test(refValue)){
+        if(!oldRegex.test(refValue) && !firstRegex.test(refValue)){
             /* Entered value not valid */
             setRefValid(false);
             setRefErrorText('Invalid reference number. please check the reference number');
@@ -107,6 +110,28 @@ function Index(){
         }
 
         setRefNumber(refValue);
+    }
+
+    async function handleReferenceSubmit(){
+        /* Saving the access token in cookies */
+        const cookie = new Cookies();
+        const token = cookie.get('Access-Token');
+
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/studio/appointments/${refNumber}/check-validity`,
+            null , {headers: {
+                    'Authorization': 'Bearer ' + token
+                }})
+            .then(response => {
+                const data = response.data;
+
+                if(data.validity === true){
+                    navigate(`/reference/${refNumber}`);
+                } else {
+                    setRefErrorText('Invalid reference number. please check the reference number');
+                }
+            }).catch(err => {
+                console.log(err);
+            });
     }
 
     const showErrorMessage = (errorText: string) => {
@@ -125,7 +150,7 @@ function Index(){
 
     return (
         <>
-            <Navbar />
+            <Navbar protectedRoute={false} />
             <Modal opened={opened} onClose={close} withCloseButton={false} centered>
                 <Flex direction='column' align='center'>
                     <SegmentedControl color='primary' value={segValue} onChange={useSegValue} data={[{ label: 'Reference number', value: 'ref-number'}, { label: 'QR code', value: 'qr-code'}]} />
@@ -134,7 +159,7 @@ function Index(){
                         <>
                             <TextInput size='lg' mt={16} value={refNumber} onChange={(event) => { handleRefChange(event.target.value) }}/>
                             <Text size='sm' color='red'>{refErrorText}</Text>
-                            <Button color='primary' mt={12} rightIcon={<FaArrowRight />} disabled={!refValid} onClick={() => navigate(`/reference/${refNumber}`)}>Choose Image</Button>
+                            <Button color='primary' mt={12} rightIcon={<FaArrowRight />} disabled={!refValid} onClick={handleReferenceSubmit}>Choose Image</Button>
                         </>
                      }
                     { segValue === 'qr-code' &&
@@ -153,7 +178,6 @@ function Index(){
                     <Title pb={12} order={1} color='primary.8'>ICAO Studio Web App</Title>
                     <Text pb={24}>Instant checking of photographs adhering to internationally recognized ICAO (International Civil Aviation Organization) standards. </Text>
                     <Flex direction='row' align='center' justify='start'>
-                        <Button variant='light' color='primary' mx={6}>Learn ICAO&nbsp;<FaSquareArrowUpRight/></Button>
                         { !user && <Button variant='filled' color='primary' mx={6} onClick={() => navigate('/signin')}>Sign in&nbsp;<FaCircleUser/></Button> }
                         { user && <>
                             <Button variant='filled' color='primary' mx={6} onClick={open}>Choose image&nbsp;<FaArrowRight/></Button>
@@ -162,6 +186,7 @@ function Index(){
                     </Flex>
                 </Container>
             </Flex>
+
             <Bottombar />
         </>
 

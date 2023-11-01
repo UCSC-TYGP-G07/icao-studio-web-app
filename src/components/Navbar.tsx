@@ -6,8 +6,9 @@ import React, {createContext, useContext, useEffect} from "react";
 import {AuthContext, JwtToken} from "../services/AuthContextProvider";
 import jwtDecode from "jwt-decode";
 import {useLocation, useNavigate} from "react-router-dom";
+import {RiSettings5Fill} from "react-icons/ri";
 
-function Navbar(){
+function Navbar(props: NavbarProps){
     /* Getting currently signed in user */
     const cookie = new Cookies();
     const accessToken = cookie.get('Access-Token');
@@ -24,7 +25,9 @@ function Navbar(){
                 /* Redirect to the signin page */
 
                 if(location.pathname !== '/signin' && location.pathname !== '/') {
-                    navigator('/signin');
+                    if(props.protectedRoute === true) {
+                        navigator('/signin');
+                    }
                 }
             } else {
                 /* Decode the access token and store in react context */
@@ -47,30 +50,22 @@ function Navbar(){
     function signoutHandler(){
         cookie.remove('Access-Token');
         setUser(null);
+        window.location.reload();
     }
 
     return (
       <Flex h={64} align='center' justify='space-between' bg='primary.0'>
         {/* Logo container */}
         <Flex ml={24} p={12}>
-            <Image maw={36} src={logo} alt='OneId logo'/>
+            <Image maw={36} src={logo} alt='OneId logo' onClick={() => navigator('/')}/>
         </Flex>
 
         {/* Menu Container */}
         <Flex align='center'>
             {/* Language selector */}
            <Container>
-               <Menu>
-                   <Menu.Target>
-                       <Button color='primary' variant='white' rightIcon={<FaAngleDown />}>English</Button>
-                   </Menu.Target>
-                   <Menu.Dropdown>
-                       <Menu.Label>Select language</Menu.Label>
-                       <Menu.Item>English</Menu.Item>
-                       <Menu.Item>Sinhala</Menu.Item>
-                       <Menu.Item>Tamil</Menu.Item>
-                   </Menu.Dropdown>
-               </Menu>
+               <Button color='primary' variant='filled' mr={12} onClick={() => navigator('/appointment')}>Create Appointment</Button>
+               { user && <Button color='primary' variant='white' rightIcon={<RiSettings5Fill />} onClick={() => navigator('/dashboard')}>Dashboard</Button> }
            </Container>
             {/* Sign in button */}
             { user &&
@@ -81,8 +76,6 @@ function Navbar(){
                     </Menu.Target>
                     <Menu.Dropdown>
                         <Menu.Label>{user.email}</Menu.Label>
-                        <Menu.Item>User account page</Menu.Item>
-                        <Menu.Item>Settings</Menu.Item>
                         <Menu.Item onClick={signoutHandler}>Sign out</Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
@@ -91,6 +84,10 @@ function Navbar(){
         </Flex>
       </Flex>
     );
+}
+
+interface NavbarProps{
+    protectedRoute: boolean;
 }
 
 export default Navbar;
